@@ -1,0 +1,90 @@
+JPA and Hibernate
+JPA is a specification: It defines how Java objects map to database tables and provides APIs for managing persistence.
+Hibernate is an implementation: It provides the actual code to perform these mappings and operations.
+When you use spring-boot-starter-data-jpa, it includes Hibernate by default.
+That’s why you see automatic table creation and updates, even though you didn’t explicitly include Hibernate.
+
+
+//Repositories in Spring Data JPA must be interfaces because:
+//
+//Spring dynamically generates their implementation.
+//It reduces boilerplate code.
+//It promotes flexibility and stick with the good design principles like the Open/Closed Principle and Separation of Concerns.
+//Since jpa repository is an interface preferring extend to interface from interface more appropriate than extending from class
+//also in some cases if we create an interface in a class there is a chance JPA couldn't find it automatically.
+
+
+//    The id is typically not part of the constructor because it's managed by JPA (or the database) and automatically
+//    assigned during the persistence process. we should focus on setting business-related fields in the constructor,
+//    not the technical ones like id.
+    public BlogPost(String title, String content, String author)
+
+
+    //    The no-argument constructor is for JPA's internal use (especially for object hydration from the database).
+    public BlogPost()
+
+
+ @Lob  // to store large text data
+    private String content;
+
+
+    import javax.persistence.*;
+    /* The javax.persistence.* import gives access to various JPA annotations and utilities that allow your
+    Java classes to interact with a relational database, such as creating tables and mapping Java objects to database rows. */
+
+
+//////////
+DATA TRANSFER OBJECT
+How the Model and DTO Work Together
+When a user sends a request (e.g., to create a blog post), the request body is converted to a DTO (BlogPostDto).
+In the service layer, the DTO is transformed into an entity (BlogPost) before being persisted.
+Similarly, when fetching data, entities are converted back to DTOs before returning them to the client.
+
+Model Classes (@Entity):
+
+Represent database tables.
+Used by the repository layer for persistence.
+DTO Classes:
+
+Represent request/response data.
+Used for transferring data between the controller and the service layer.
+
+Advantages of DTOs
+Abstraction:
+
+Shields the database schema (@Entity) from the client.
+Example: BlogPostDto might expose only title and content fields, even if the BlogPost entity contains id, createdAt, and updatedAt.
+
+Security:
+Prevents exposing sensitive data (e.g., password fields).
+
+Flexibility:
+DTOs can aggregate or flatten data from multiple entities if required.
+Validation:
+
+DTOs can be annotated with validation rules (e.g., @NotNull, @Size)
+to ensure the incoming data is valid before reaching the service layer.
+//////////////////
+
+/////////////
+FLOW
+[Client (JSON)]
+    ↓
+[Controller]
+    ↓  (DTO: BlogPostDto)
+[Service Layer]
+    ↓  (Entity: BlogPost)
+[Repository Layer]
+    ↓
+[Database]
+//////////////////
+
+
+/* -Abstract methods in the repository use a naming convention that Spring Data JPA recognizes and translates into a database query.
+-This eliminates the need for manual query writing, streamlining data access operations.
+-The connection is that these methods are tied to your entity class fields, allowing Spring Data JPA to
+automatically implement them. */
+
+
+
+
